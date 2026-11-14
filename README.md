@@ -55,7 +55,7 @@ strip = true      # strip symbols + debuginfo
 A multi-stage Dockerfile ending in a tiny non-root image:
 
 ```dockerfile
-FROM rust:1-slim AS chef
+FROM rust:1.88-slim AS chef  # pin the minor; bump deliberately
 WORKDIR /app
 # Prebuilt cargo-chef — `cargo install` recompiles ~100 crates every cold build.
 RUN curl -fsSL https://github.com/LukeMathWalker/cargo-chef/releases/download/v0.1.78/cargo-chef-x86_64-unknown-linux-musl.tar.xz \

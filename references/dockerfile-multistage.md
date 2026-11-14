@@ -78,7 +78,7 @@ Install `cargo-chef` as a prebuilt binary (`curl` the GitHub release, `tar` into
 `lto = "fat"` + `codegen-units = 1` (the profile above) make linking the slow step. Swap the linker for `mold` in the builder stage to cut link time dramatically:
 
 ```dockerfile
-FROM rust:1-slim AS chef
+FROM rust:1.88-slim AS chef
 RUN apt-get update \
     && apt-get install -y mold clang \
     && rm -rf /var/lib/apt/lists/*
