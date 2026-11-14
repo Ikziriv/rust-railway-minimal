@@ -109,6 +109,8 @@ And Railway config (healthcheck + restart):
 - **Config-as-Code (`railway.json`/`railway.toml`) is deprecated** (works until 2026-12-01). Use Infrastructure-as-Code: `.railway/railway.ts` via `railway config init`.
 - **Bind `0.0.0.0:$PORT`** — Railway injects `PORT` (default 3000).
 - **`replicas: 1`** unless you need HA; every replica doubles the footprint.
+- **Pin the Rust minor** (`rust:1.88-slim`, not `rust:1-slim`) for reproducible builds.
+- **Persist the Cargo registry** with `--mount=type=cache,id=s/<service-id>-cargo-registry,target=/usr/local/cargo/registry` so deploys don't recompile deps.
 
 ## Repository layout
 

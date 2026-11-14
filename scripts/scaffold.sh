@@ -33,7 +33,7 @@ EOF
 
 # --- multi-stage Dockerfile ---
 cat > Dockerfile <<EOF
-FROM rust:1-slim AS chef
+FROM rust:1.88-slim AS chef  # pin the minor; bump deliberately
 WORKDIR /app
 # Prebuilt cargo-chef — cargo install recompiles ~100 crates every cold build.
 RUN curl -fsSL https://github.com/LukeMathWalker/cargo-chef/releases/download/${chef_version}/cargo-chef-x86_64-unknown-linux-musl.tar.xz | tar -xJ -C /usr/local/bin --strip-components=1 cargo-chef-x86_64-unknown-linux-musl/cargo-chef

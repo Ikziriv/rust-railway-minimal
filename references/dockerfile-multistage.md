@@ -93,3 +93,18 @@ rustflags = ["-C", "link-arg=-fuse-ld=mold"]
 ```
 
 `mold` only affects build time, not the final image — use it whenever you rebuild often. (A compiler cache like `sccache` is an alternative, but it is finicky across Docker layers; prefer `mold` first.)
+
+## Toolchain pinning
+
+Pin the Rust minor in the base image — `rust:1.88-slim`, not `rust:1-slim` — so a redeploy can't silently bump the toolchain and change the binary. Bump the tag deliberately, matching your local `rustc --version`. (Alternatively commit a `rust-toolchain.toml` and let `rustup` install the pinned toolchain in the image.)
+
+## Railway build cache mounts
+
+Persist the Cargo registry across builds so `cargo chef cook` doesn't re-download or re-compile the world:
+
+```dockerfile
+RUN --mount=type=cache,id=s/<service-id>-cargo-registry,target=/usr/local/cargo/registry \
+    cargo chef cook --release --recipe-path recipe.json
+```
+
+Railway requires cache-mount ids of the form `s/<service-id>-<name>` (env/ARG are rejected). Reuse the same id across `cargo chef cook` and `cargo build` — that's what makes dependencies not recompile between deploys.

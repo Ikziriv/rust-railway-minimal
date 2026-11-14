@@ -1,6 +1,6 @@
 ---
 name: rust-railway-minimal
-description: Deploy Rust services on Railway with a Docker build tuned for the smallest possible CPU, memory, and network footprint. Use when the user wants to build a Rust service (Axum, Actix Web, Rocket, tonic, Leptos SSR, or a plain binary) as a Docker image for Railway, write a minimal multi-stage Dockerfile, shrink a Rust service's resource usage or image size, configure a service via Railway Infrastructure-as-Code or railway.json, or use the Railway CLI.
+description: Ship Rust services to Railway with the smallest possible CPU, memory, and network footprint via a minimal Docker build. Use when the user wants to deploy or optimize Rust (Axum, Actix Web, Rocket, tonic, Leptos SSR, or a plain binary) on Railway, write a multi-stage Dockerfile, shrink a service's resource usage or container image, configure Railway (Infrastructure-as-Code or railway.json), or use the Railway CLI.
 ---
 
 # Rust on Railway — minimal Docker build
@@ -28,7 +28,7 @@ The `target/` entry alone is the biggest win — it can be gigabytes.
 `cargo-chef` caches your dependency layer; the final stage is a tiny non-root image:
 
 ```dockerfile
-FROM rust:1-slim AS chef
+FROM rust:1.88-slim AS chef  # pin the minor; bump deliberately
 WORKDIR /app
 # Prebuilt cargo-chef — `cargo install` recompiles ~100 crates every cold build.
 RUN curl -fsSL https://github.com/LukeMathWalker/cargo-chef/releases/download/v0.1.78/cargo-chef-x86_64-unknown-linux-musl.tar.xz \
@@ -56,6 +56,7 @@ CMD ["/app"]
 - `distroless/cc-debian12` = no shell, no package manager, CA certs included, runs non-root.
 - For the absolute smallest image, go `FROM scratch` with a static musl build — see [references/dockerfile-multistage.md](references/dockerfile-multistage.md).
 - Bind `0.0.0.0:$PORT`; Railway injects `PORT`.
+- Pin the Rust minor (`rust:1.88-slim`, not `rust:1-slim`) so a redeploy can't silently bump the toolchain.
 
 > **Leptos SSR?** A full-stack (SSR + hydration) app needs a second WASM build, not a plain `cargo build`. Read [references/leptos-ssr.md](references/leptos-ssr.md) before writing the Dockerfile.
 
@@ -99,6 +100,8 @@ Set the builder to Docker and give it a healthcheck. Minimal `railway.json`:
 ```
 
 > Config-as-Code (`railway.json`) is deprecated and works until 2026-12-01. For new work, prefer Infrastructure-as-Code in `.railway/railway.ts` — full schema in [references/railway-iac-cli.md](references/railway-iac-cli.md).
+
+`healthcheckPath` is an HTTP probe against your `/health` route (not the Docker `HEALTHCHECK` directive) — keep `/health` trivial and DB-free.
 
 Keep `replicas` at 1 unless you need HA; every replica doubles the footprint.
 

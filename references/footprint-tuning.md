@@ -48,6 +48,7 @@ static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 - Prefer HTTP/2 (multiplexed, fewer sockets) for internal service-to-service calls; it also lowers memory vs many HTTP/1.1 connections.
 - Compression (`gzip`/`brotli`) shrinks bytes but burns CPU. On a 0.5 vCPU container, compress only responses above ~1 KiB, or skip it and let Railway's CDN/edge handle it.
 - Return small payloads: `serde_json` with `skip_serializing_if`, avoid embedding large blobs.
+- Prefer `rustls` over `native-tls`/OpenSSL (`reqwest`'s `rustls-tls` feature) so the runtime image ships no `libssl3` — smaller image, less CVE surface.
 
 ## Graceful shutdown
 
